@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
-#from locations.models import Cities
+from locations.models import Cities
 
 
 class IntValidator:
@@ -64,7 +64,7 @@ class PatientProfile(models.Model):
     disability = models.BooleanField(verbose_name=_('Инвалидность'), default=False)
     reabilitation = models.BooleanField(verbose_name=_('Реабилитация'), default=False)
     date_of_birth = models.DateField(verbose_name=_('Дата рождения'), blank=True, null=True)
-#    city = models.ForeignKey(Cities, on_delete=models.SET_NULL, null=True, verbose_name=_('Город'))
+    city = models.ForeignKey(Cities, on_delete=models.SET_NULL, null=True, verbose_name=_('Город'))
 
 class PatientChildManager(BaseUserManager):
     def get_queryset(self, *args, **kwargs):
@@ -98,7 +98,7 @@ class PatientChildProfile(models.Model):
     mother_number = models.CharField(verbose_name=_('Номер телефона матери'), max_length=16, blank=True)
     disability = models.BooleanField(verbose_name=_('Инвалидность'))
     reabilitation = models.BooleanField(verbose_name=_('Реабилитация'))
-#    city = models.ForeignKey(Cities, on_delete=models.SET_NULL, null=True, verbose_name='Город')
+    city = models.ForeignKey(Cities, on_delete=models.SET_NULL, null=True, verbose_name='Город')
 
 
 class DoctorManager(BaseUserManager):
