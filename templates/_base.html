@@ -2,14 +2,14 @@
 
 {% load compress %}
 {% load static %}
+{% load pages_tags %}
 
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Django + Tailwind CSS + Flowbite</title>
+    <title>{%block title%}{% endblock %}</title>
 
     {% compress css %}
     <link rel="stylesheet" href="{% static 'src/output.css' %}">
@@ -20,13 +20,13 @@
 <body class="bg-white">
     <div>
         {% include 'components/navbar.html' %}
-        {% include 'components/sidebar.html' %}
+        {% show_sidebar selected_menu %}
     </div>
-    <div class="container mx-auto mt-4">
+    <div class="block sm:ml-64 p-4">
         {% block content %}
         {% endblock content %}
     </div>
-    <script src="../node_modules/flowbite/dist/flowbite.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
 </body>
 
 </html>

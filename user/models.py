@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db.models.signals import post_save
@@ -6,16 +5,17 @@ from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from locations.models import Cities
 
+#from django.core.exceptions import ValidationError
 
-class IntValidator:
-    ALLOWED_CHARS = "0123456789"
-    code = 'IIN'
-    def __init__(self, message=None):
-        self.message = message if message else _("IIN must consist of numbers")
-
-    def __call__(self, value):
-        if not (set(value) <= set(self.ALLOWED_CHARS)):
-            raise ValidationError(self.message, code=self.code, params={"value": value})
+# class IntValidator:
+#     ALLOWED_CHARS = "0123456789"
+#     code = 'IIN'
+#     def __init__(self, message=None):
+#         self.message = message if message else _("IIN must consist of numbers")
+#
+#     def __call__(self, value):
+#         if not (set(value) <= set(self.ALLOWED_CHARS)):
+#             raise ValidationError(self.message, code=self.code, params={"value": value})
 
 class Gender(models.TextChoices):
     MALE = 'male', _('Male')

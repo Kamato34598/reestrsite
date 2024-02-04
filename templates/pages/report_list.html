@@ -1,0 +1,43 @@
+{% extends '_base.html' %}
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block content %}
+    <h1 class="text-xl">{{ title }}</h1>
+    <div class="mt-4">
+        <h1 class="pl-10">Выберите отчет</h1>
+        <ul class="list-none">
+            <li>
+                <a href="#" class="text-blue-500 underline">
+                    Возрастная структура
+                </a>
+            </li>
+            <li>
+                <a href="#" class="text-blue-500 underline">
+                    Отчет по областям
+                </a>
+            </li>
+            <li>
+                <a href="#" class="text-blue-500 underline">
+                    Отчет по диагнозу
+                </a>
+            </li>
+            <li>
+                <a href="#" class="text-blue-500 underline">
+                    Отчет по инвалидности
+                </a>
+            </li>
+            <li>
+                <a href="#" class="text-blue-500 underline">
+                    Отчет по реабилитации
+                </a>
+            </li>
+            <li>
+                <a href="#" class="text-blue-500 underline">
+                    Отчет по Восоритиду
+                </a>
+            </li>
+        </ul>
+    </div>
+{% endblock %}

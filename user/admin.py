@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User, Patient, PatientProfile, PatientChildProfile, PatientChild
-from locations.models import Cities, Districts, Regions
+from locations.models import Cities
 from django.utils.translation import gettext_lazy as _
 
 
@@ -22,10 +22,7 @@ class PatientAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'username', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'role')}),
-        # 'Patient Profile' в этом примере отображается после 'Personal info'
-        ('Patient Profile',
-         {'fields': ('iin', 'gender', 'city', 'height', 'disability', 'reabilitation', 'date_of_birth')}),
-        ('Permissions', {'fields': ('is_active','groups',)}),
+        # ('Permissions', {'fields': ('is_active','groups',)}),
     )
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

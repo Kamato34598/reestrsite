@@ -32,4 +32,4 @@ class Cities(models.Model):
         verbose_name_plural = _('Города')
         ordering = ['name']
     def __str__(self):
-        return "{0} область,{1} район, город/село {2}".format(self.district.region.name, self.district.name, self.name)
+        return "{0} область,{1}, город/село {2}".format(self.district.region.name, self.district.name, self.name)
