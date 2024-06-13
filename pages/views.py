@@ -1,4 +1,8 @@
+from django.db.models import F
 from django.shortcuts import render, HttpResponse
+
+from user.models import Patient#, PatientProfile, PatientChild, PatientChildProfile
+
 
 def index(request):
     context = {
@@ -7,6 +11,20 @@ def index(request):
     return render(request, 'pages/index.html', context=context)
 
 def patient_list(request):
+    if request.method == 'GET':
+        name = request.GET.get('lastName')
+        gender = request.GET.get('gender')
+        disability = request.GET.get('disability')
+        print(name)
+        print(gender)
+        print(disability)
+        patient = Patient.objects.filter(last_name=name)
+        print(patient)
+        # print(patient[0].patient_profile.height)
+        # results = (
+        #     list(PatientProfile.objects.filter(user__name__icontains=name).annotate(gender=F('gender')).values('disability', 'gender')) +
+        #     list(PatientChildProfile.objects.filter(user__name__icontains=name).annotate(gender=F('gender')).values('disability', 'gender'))
+        # )
     context = {
         'title': 'Пациенты',
     }

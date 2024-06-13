@@ -10,26 +10,26 @@ class Regions(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        return "{0} область".format(self.name)
-
-class Districts(models.Model):
-    name = models.CharField(verbose_name=_('Название Района'), max_length=100)
-    region = models.ForeignKey(Regions, on_delete=models.PROTECT, verbose_name=_('Название области'))
-
-    class Meta:
-        verbose_name =_('Район')
-        verbose_name_plural = _('Районы')
-        ordering = ['name']
-    def __str__(self):
         return self.name
+
+# class Districts(models.Model):
+#     name = models.CharField(verbose_name=_('Название Района'), max_length=100)
+#     region = models.ForeignKey(Regions, on_delete=models.PROTECT, verbose_name=_('Название области'))
+#
+#     class Meta:
+#         verbose_name =_('Район')
+#         verbose_name_plural = _('Районы')
+#         ordering = ['name']
+#     def __str__(self):
+#         return self.name
 
 
 class Cities(models.Model):
     name = models.CharField(verbose_name=_('Название города/села'), max_length=100)
-    district = models.ForeignKey(Districts, on_delete=models.PROTECT, verbose_name=_('Название района'))
+    region = models.ForeignKey(Regions, on_delete=models.PROTECT, verbose_name=_('Название области'))
     class Meta:
         verbose_name = _('Город')
         verbose_name_plural = _('Города')
         ordering = ['name']
     def __str__(self):
-        return "{0} область,{1}, город/село {2}".format(self.district.region.name, self.district.name, self.name)
+        return "{0}, город/село {1}".format(self.region.name,  self.name)

@@ -1,10 +1,10 @@
 {% load static %}
 <nav class="ml-0 bg-[#8eaadb] border-gray-200 dark:bg-gray-900 transition-transform sm:ml-64">
     <div class=" max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <div class="flex gap-2 items-center">
+        <div class="flex flex-row gap-2 max-w-min md:max-w-max">
             <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar"
                     type="button"
-                    class="inline-flex text-white items-center mt-2 p-1 border border-[#7188AF] w-10 h-full text-sm rounded-lg sm:hidden hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+                    class="inline-flex text-white items-center mt-2 p-1 border border-[#7188AF] w-10 h-full text-sm rounded-lg md:hidden hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                 <span class="sr-only">Open sidebar</span>
                 <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
                      xmlns="http://www.w3.org/2000/svg">
@@ -12,29 +12,28 @@
                           d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                 </svg>
             </button>
-            <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
-                <img src="{% static '/images/logo.webp' %}" class="transition-transform h-16 sm:h-24" alt="ofmm Logo"/>
-                <span class="self-center transition-transform sm:text-2xl font-semibold flex-wrap dark:text-white text-sm">Реестр пациентов с редкими скелетными дисплазиями</span>
+            <a href="#" class="flex-shrink-0 flex flex-row max-w-min md:max-w-max">
+                <img src="{% static '/images/logo2.webp' %}" class="transition-transform max-w-full self-center size-12 md:size-24" alt="ofmm Logo" >
+                <span class="self-center transition-transform sm:text-2xl font-semibold dark:text-white text-sm">Реестр пациентов с редкими скелетными дисплазиями</span>
             </a>
         </div>
-        <div class="max-w-md flex flex-col gap-1">
+        <ul class="max-w-min pl-4">
             {% if user.is_authenticated %}
-                <span class="text-white transition-transform sm:text-xl text-lg">{{ user.username }}</span>
-                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                <li class="text-white mb-2 transition-transform sm:text-xl text-lg">{{ user.username }}</li>
+                <li class="flex mb-2 items-center space-x-3 rtl:space-x-reverse">
                     <a href="#" class="font-semibold text-white transition-transform text-base sm:text-lg">Личный кабинет</a>
-                </div>
-                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                </li>
+                <li class="flex mb-2 items-center space-x-3 rtl:space-x-reverse">
                     <a href="{% url 'user:logout' %}"
-                        class="mx-auto rounded-md bg-cyan-600 py-2 px-4 font-semibold text-white shadow-lg transition duration-150 ease-in-out hover:bg-cyan-700 hover:shadow-xl focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:ring-offset-2">Выход</a>
-                </div>
+                       class="mx-auto rounded-md bg-cyan-600 py-2 px-4 font-semibold text-white shadow-lg transition duration-150 ease-in-out hover:bg-cyan-700 hover:shadow-xl focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:ring-offset-2">Выход</a>
+                </li>
             {% else %}
-                <span class="text-white transition-transform sm:text-xl text-lg">Гость</span>
-                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                <li class="text-white mb-2 transition-transform sm:text-xl text-lg">Гость</li>
+                <li class="flex mb-2 items-center space-x-3 rtl:space-x-reverse">
                     <a href="{% url 'user:login' %}"
-                        class="mx-auto rounded-md bg-cyan-600 py-2 px-4 font-semibold text-white shadow-lg transition duration-150 ease-in-out hover:bg-cyan-700 hover:shadow-xl focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:ring-offset-2">Войти</a>
-                </div>
+                       class="mx-auto rounded-md bg-cyan-600 py-2 px-4 font-semibold text-white shadow-lg transition duration-150 ease-in-out hover:bg-cyan-700 hover:shadow-xl focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:ring-offset-2">Войти</a>
+                </li>
             {% endif %}
-
-        </div>
+        </ul>
     </div>
 </nav>

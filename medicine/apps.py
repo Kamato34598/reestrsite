@@ -2,10 +2,7 @@ from django.apps import AppConfig
 from django.utils.translation import gettext_lazy as _
 
 
-class UserConfig(AppConfig):
+class MedicineConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'user'
-    verbose_name = _('Пользователи')
-
-    def ready(self):
-        import user.signals
+    name = 'medicine'
+    verbose_name = _('Медицинские данные')

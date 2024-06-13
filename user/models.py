@@ -1,126 +1,181 @@
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.contrib.auth.models import BaseUserManager, PermissionsMixin, UserManager
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from locations.models import Cities
+from medicine.medicalmodel import MedicalOrganization, Diagnosis
+from .validators import validate_iin
 
-#from django.core.exceptions import ValidationError
-
-# class IntValidator:
-#     ALLOWED_CHARS = "0123456789"
-#     code = 'IIN'
-#     def __init__(self, message=None):
-#         self.message = message if message else _("IIN must consist of numbers")
-#
-#     def __call__(self, value):
-#         if not (set(value) <= set(self.ALLOWED_CHARS)):
-#             raise ValidationError(self.message, code=self.code, params={"value": value})
 
 class Gender(models.TextChoices):
-    MALE = 'male', _('Male')
-    FEMALE = 'female', _('Female')
+    MALE = 'male', _('мужской')
+    FEMALE = 'female', _('женский')
 
+class CustomUserManager(UserManager):
+    def _create_user(self, username, email, password, **extra_fields):
+        if not username:
+            raise ValueError("You have not provided a valid username")
+        email = self.normalize_email(email)
+        user = self.model(username=username, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
-class User(AbstractUser):
-    class Role(models.TextChoices):
-        ADMIN = 'admin', _('Admin')
-        PATIENT = 'patient', _('Patient')
-        PATIENT_CHILD = 'patient_child', _('Patient Child')
-        DOCTOR = 'doctor', _('Doctor')
-    base_role = Role.ADMIN
-    role = models.CharField(_('Role'), max_length=50, choices=Role.choices)
+    def create_user(self, username=None ,email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(username, email, password, **extra_fields)
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.role = self.base_role
-            return super(User, self).save(*args, **kwargs)
+    def create_superuser(self, username=None, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self._create_user(username, email, password, **extra_fields)
+
+class ResUser(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(blank=False, default='', unique=True)
+    username = models.CharField(max_length=255, blank=False, default='', unique=True, verbose_name=_('Логин'))
+    first_name = models.CharField(max_length=255, blank=False, default='', verbose_name=_('Имя'))
+    last_name = models.CharField(max_length=255, blank=False, default='', verbose_name=_('Фамилия'))
+    city = models.ForeignKey(Cities, on_delete=models.SET_NULL, null=True, verbose_name=_('Город'), related_name='users')
+    phone_number = models.CharField(max_length=12, unique=True,verbose_name=_('Номер телефона'))
+
+    is_active = models.BooleanField(default=True)
+    is_superuser = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+    is_patient = models.BooleanField(default=False)
+    is_doctor = models.BooleanField(default=False)
+
+    date_joined = models.DateTimeField(default=timezone.now)
+    last_login = models.DateTimeField(blank=True, null=True)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'username'
+    EMAIL_FIELD = 'email'
+    REQUIRED_FIELDS = ['email']
+
+    class Meta:
+        verbose_name = _('Пользователь')
+        verbose_name_plural = _('Пользователи')
+
+    def get_full_name(self):
+        return self.username
+
+    def get_short_name(self):
+        return self.username or self.email.split('@')[0]
+    def __str__(self):
+        return "{0} {1}".format(self.last_name, self.first_name)
 
 class PatientManager(BaseUserManager):
     def get_queryset(self, *args, **kwargs):
         results = super().get_queryset(*args, **kwargs)
-        return results.filter(role=User.Role.PATIENT)
+        return results.filter(is_patient=True)
 
-class Patient(User):
-    base_role = User.Role.PATIENT
-
-    patient = PatientManager()
+class Patient(ResUser):
+    is_patient = True
+    objects = PatientManager()
 
     class Meta:
         proxy = True
         verbose_name = _('Пациент')
         verbose_name_plural = _('Пациенты')
 
-@receiver(post_save, sender=Patient)
-def create_patient_profile(sender, instance, created, **kwargs):
-    if created and instance.role == "PATIENT":
-        PatientProfile.objects.create(user=instance)
+    def save(self, *args, **kwargs):
+        self.is_patient = True
+        super().save(*args, **kwargs)
 
-class PatientProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    IIN = models.CharField(verbose_name=_('ИИН'), max_length=12, unique=True)
+class PatientAltProfile(models.Model):
+    user = models.OneToOneField(ResUser, on_delete=models.CASCADE, related_name='patient_altprofile')
+    IIN = models.CharField(max_length=12, unique=True,verbose_name=_('ИИН'), validators=[validate_iin])
+    birth_date = models.DateField(verbose_name=_('Дата рождения'))
     gender = models.CharField(verbose_name=_('Пол'), max_length=10, choices=Gender.choices)
-    height = models.IntegerField(verbose_name=_('Рост'))
+    height = models.PositiveIntegerField(verbose_name=_('Рост'))
     disability = models.BooleanField(verbose_name=_('Инвалидность'), default=False)
-    reabilitation = models.BooleanField(verbose_name=_('Реабилитация'), default=False)
-    date_of_birth = models.DateField(verbose_name=_('Дата рождения'), blank=True, null=True)
-    city = models.ForeignKey(Cities, on_delete=models.SET_NULL, null=True, verbose_name=_('Город'))
-
-class PatientChildManager(BaseUserManager):
-    def get_queryset(self, *args, **kwargs):
-        results = super().get_queryset(*args, **kwargs)
-        return results.filter(role=User.Role.PATIENT_CHILD)
-
-class PatientChild(User):
-    base_role = User.Role.PATIENT_CHILD
-
-    child_patient = PatientChildManager()
+    rehabilitation = models.BooleanField(verbose_name=_('Реабилитация'), default=False)
+    medical_organization = models.ForeignKey(MedicalOrganization, on_delete=models.PROTECT, verbose_name=_('Медицинская организация'))
+    diagnosis = models.ForeignKey(Diagnosis, on_delete=models.PROTECT, verbose_name=_('Диагноз'), related_name='patient_altprofile')
+    vosoritid = models.BooleanField(verbose_name=_('Принимали Восоритид'), default=False)
+    is_child = models.BooleanField(
+        verbose_name=_('Личный статус'),
+        default=False,
+        choices=[(True, _('Ребенок')), (False, _('Взрослый'))]
+    )
 
     class Meta:
+        verbose_name = _('Профиль пациента')
+        verbose_name_plural = _('Профили пациентов')
+
+    def __str__(self):
+        return "{0} {1}".format(_('Пациент:'), self.user)
+
+class ChildProfileManager(models.Manager):
+    def get_queryset(self, *args, **kwargs):
+        result = super().get_queryset(*args, **kwargs)
+        return result.filter(is_child=True)
+
+class ChildProfile(PatientAltProfile):
+    is_child = True
+    objects = ChildProfileManager()
+    class Meta:
         proxy = True
-        verbose_name =_('Пациент-ребенок')
-        verbose_name_plural =_('Дети пациенты')
+        verbose_name = _('Профиль ребенка')
+        verbose_name_plural = _('Профили детей')
 
-@receiver(post_save, sender=PatientChild)
-def create_patient_child_profile(sender, instance, created, **kwargs):
-    if created and instance.role == "PATIENT_CHILD":
-        PatientChildProfile.objects.create(user=instance)
+class AdultProfileManager(models.Manager):
+    def get_queryset(self, *args, **kwargs):
+        result = super().get_queryset(*args, **kwargs)
+        return result.filter(is_child=False)
 
+class AdultProfile(PatientAltProfile):
+    is_child = False
+    objects = AdultProfileManager()
+    class Meta:
+        proxy = True
+        verbose_name = _('Профиль пациента')
+        verbose_name_plural = _('Профили пациентов')
 
-class PatientChildProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    IIN = models.CharField(verbose_name=_('ИИН ребенка'), max_length=12, unique=True)
-    gender = models.CharField(verbose_name=_('Пол ребенка'), max_length=10, choices=Gender)
-    father_name = models.CharField(verbose_name=_('ФИО отца'), max_length=100, blank=True)
-    mother_name = models.CharField(verbose_name=_('ФИО матери'), max_length=100, blank=True)
-    date_of_birth = models.DateField(verbose_name=_('Дата рождения ребенка'), blank=True, null=True)
+class ChildAddition(models.Model):
+    profile = models.OneToOneField(ChildProfile, on_delete=models.CASCADE, related_name='ChildAddition')
+    father_name = models.CharField(verbose_name=_('ФИО отца'), max_length=100, blank=True, null=True)
+    mother_name = models.CharField(verbose_name=_('ФИО матери'), max_length=100, blank=True, null=True)
     father_number = models.CharField(verbose_name=_('Номер телефона отца'), max_length=16, blank=True)
     mother_number = models.CharField(verbose_name=_('Номер телефона матери'), max_length=16, blank=True)
-    disability = models.BooleanField(verbose_name=_('Инвалидность'))
-    reabilitation = models.BooleanField(verbose_name=_('Реабилитация'))
-    city = models.ForeignKey(Cities, on_delete=models.SET_NULL, null=True, verbose_name='Город')
+    class Meta:
+        verbose_name = _('Дополнительная информация о родителях')
+        verbose_name_plural = _('Дополнительная информация о родителях')
 
+    def __str__(self):
+        return "{0} {1}".format(self.profile, _('- дополнительная информация ребенка'))
+
+class AdultAddition(models.Model):
+    profile = models.OneToOneField(AdultProfile, on_delete=models.CASCADE, related_name='AdultAddition')
+    is_elongation = models.BooleanField(default=False, verbose_name=_('Удлинение'))
+    class Meta:
+        verbose_name = _('Дополнительная информация пациента')
+        verbose_name_plural = _('Дополнительная информация пациента')
+
+    def __str__(self):
+        return "{0} {1}".format(self.profile, _('- дополнительная информация пациента'))
 
 class DoctorManager(BaseUserManager):
     def get_queryset(self, *args, **kwargs):
         results = super().get_queryset(*args, **kwargs)
-        return results.filter(role=User.Role.DOCTOR)
+        return results.filter(is_doctor=True)
 
-class Doctor(User):
-    base_role = User.Role.DOCTOR
-    doctor = DoctorManager()
+class Doctor(ResUser):
+    is_doctor = True
+    objects = DoctorManager()
 
     class Meta:
         proxy = True
         verbose_name = _('Врач')
         verbose_name_plural = _('Врачи')
 
-@receiver(post_save, sender=Doctor)
-def create_doctor_profile(sender, instance, created, **kwargs):
-    if created and instance.role == "DOCTOR":
-        DoctorProfile.objects.create(user=instance)
+    def save(self, *args, **kwargs):
+        self.is_doctor = True
+        super().save(*args, **kwargs)
 
 class DoctorProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(ResUser, on_delete=models.CASCADE)
     speciality = models.CharField(verbose_name=_('Специализация'), max_length=100, blank=True)
-
