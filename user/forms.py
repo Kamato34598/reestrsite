@@ -63,19 +63,8 @@ class CombinedAdultProfileForm(forms.ModelForm):
 
     def save(self, commit=True):
         adult_profile = super().save(commit=False)
-        adult_addition = AdultAddition(profile=adult_profile, is_elongation=self.cleaned_data['is_elongation'])
-
-        if commit:
-            adult_profile.save()
-            adult_addition.save()
-
         return adult_profile
-    def get_additional_data(self, pk=None):
-        if pk is not None:
-            additional_data = self.Meta.model.objects.get(pk=pk)
-        else:
-            additional_data = None
-        return additional_data
+
 
 class CombinedChildProfileForm(forms.ModelForm):
     class Meta:

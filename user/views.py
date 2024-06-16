@@ -3,12 +3,15 @@ import json
 from django.shortcuts import render, HttpResponse, redirect
 from django.contrib.auth import authenticate, login
 from formtools.wizard.views import SessionWizardView
+
+from medicine.models import Elongation, VosoritidPeriod, RehabilitationRecord
 from .forms import (
     LoginForm,
     PatientRegistrationForm,
     CombinedAdultProfileForm
 )
 from medicine.forms import ElongationRecordForm, VosoritidPeriodRecordForm, RehabilitationRecordForm
+from .models import Patient, AdultProfile, AdultAddition
 
 
 def index(request):
@@ -73,6 +76,20 @@ def forms_valid_or_not(request, form, form2, context):
         context['form2'] = form2
         return render(request, 'user/register.html', context)
 
+def get_my_form(form_class, form_list):
+    for form_instance in form_list:
+        if isinstance(form_instance, form_class):
+            return form_instance
+    return None
+
+list_of_forms = {
+    'patient': PatientRegistrationForm,
+    'adultprofile': CombinedAdultProfileForm,
+    'elongation': ElongationRecordForm,
+    'vosoritid_period': VosoritidPeriodRecordForm,
+    "rehab_record": RehabilitationRecordForm,
+}
+
 class TestWizard(SessionWizardView):
     template_name = 'user/test.html'
     form_list = [
@@ -86,40 +103,52 @@ class TestWizard(SessionWizardView):
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
         context['form_title'] = form.form_title
+        self.get_form_list()
         return context
-
-    def get_exact_form(formlist, name):
-        for form_name, form_item, *z in formlist.form_list:
-            print("123 {0}".format(form_item))
-            print(form_name)
-            if form_name == name:
-                print("123 {0}".format(form_item))
-                print(form_name)
-                return form_item
 
 
     def done(self, form_list, **kwargs):
-        forms = {form.prefix: form for form in form_list}
-        if 'patient' in forms:
-            patient = forms['patient'].save()
-            profile = forms['adultprofile'].save(commit=False)
-            profile.user = patient
-            profile.save()
-            adult_addition = CombinedAdultProfileForm.get_additional_data(patient.pk)
-            if 'elongation' in forms and forms['elongation'].has_changed():
-                elongation = forms['elongation'].save(commit=False)
-                elongation.profile = adult_addition
-                elongation.save()
-        # patient_form = self.get_exact_form(name='patient')
-        # patient_form.save(commit=False)
+        # print(form_list)
+        # Step 1: Save the patient
+        patient_form = form_list[0]
+        patient = patient_form.save()
+        #test = self.get_cleaned_data_for_step('')
 
-        # patient = patient_form.save()
-        # adultprofile_form = form_list[1]
-        # adultprofile= adultprofile_form.save(commit=False)
-        # adultprofile.user = patient
-        # adultprofile.save()
-        #print(adultprofile)
-        return HttpResponse("123")
+        # Step 2: Save the adult profile
+        adult_profile_form = form_list[1]
+        adult_profile = adult_profile_form.save(commit=False)
+        adult_profile.user = patient
+        adult_profile.save()
+
+        # Step 3: Save adult addition information
+        is_elongation = adult_profile_form.cleaned_data['is_elongation']
+        adult_addition = AdultAddition.objects.create(profile=adult_profile, is_elongation=is_elongation)
+
+        # Step 4: Save elongation record if applicable
+        if adult_profile_form.cleaned_data.get('is_elongation'):
+            elongation_form = get_my_form(list_of_forms['elongation'], form_list=form_list)
+            elongation = elongation_form.save(commit=False)
+            elongation.profile = adult_addition
+            elongation.save()
+            print("elongation")
+
+        # Step 5: Save Vosoritid period if applicable
+        if adult_profile_form.cleaned_data.get('vosoritid'):
+            vosoritid_period_form = get_my_form(list_of_forms['vosoritid_period'], form_list=form_list)
+            vosoritid_period = vosoritid_period_form.save(commit=False)
+            vosoritid_period.profile = adult_addition
+            vosoritid_period.save()
+            print("vosoritid")
+
+        # Step 6: Save rehabilitation record if applicable
+        if adult_profile_form.cleaned_data.get('rehabilitation'):
+            rehab_record_form = get_my_form(list_of_forms['rehab_record'], form_list=form_list)
+            rehab_record = rehab_record_form.save(commit=False)
+            rehab_record.profile = adult_profile
+            rehab_record.save()
+            print("rehab")
+
+        return HttpResponse("All data has been saved successfully.")
 
     def skip_rehabilitation_record(wizard):
         cleaned_data = wizard.get_cleaned_data_for_step('adultprofile') or {}
@@ -139,17 +168,7 @@ class TestWizard(SessionWizardView):
         'elongation': skip_elongation,
     }
 
-def test(request):
-    if request.method == 'POST':
-        form = PatientRegistrationForm(request.POST)
-        form2 = CombinedAdultProfileForm(data=request.POST)
-        if form.is_valid() and form2.is_valid():
-            #form2.save()
-            return redirect('pages:index')  # Замените 'success_url' на реальный URL
-    else:
-        form = PatientRegistrationForm()
-        form2 = CombinedAdultProfileForm()
-    return render(request, 'user/test.html', {'form': form, 'form2': form2})
+
 
 def user_register(request, patient_type):
     context = {'title': 'Регистрация'}

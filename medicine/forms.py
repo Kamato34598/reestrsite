@@ -48,7 +48,7 @@ class RehabilitationRecordForm(forms.ModelForm):
     class Meta:
         model = RehabilitationRecord
         fields = '__all__'
-        exclude = ['user']
+        exclude = ['profile']
         widgets = {'date': forms.DateInput(attrs={'type': 'date'}, format='%d-%m-%Y')}
 
 class ElongationRecordForm(forms.ModelForm):

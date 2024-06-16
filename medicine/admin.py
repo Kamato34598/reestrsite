@@ -20,7 +20,7 @@ class RehabilitationCenterAdmin(admin.ModelAdmin):
     list_display = ('name', 'city')
 
 class RehabilitationRecordAdmin(admin.ModelAdmin):
-    list_display = ('user', 'name', 'date')
+    list_display = ('profile', 'name', 'date')
 
 class VosoritidRecordAdmin(admin.ModelAdmin):
     list_display = ('user', 'date', 'height')

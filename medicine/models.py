@@ -1,20 +1,20 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from locations.models import Cities
-from user.models import ResUser, ChildAddition, AdultAddition
+from user.models import PatientAltProfile, ChildAddition, AdultAddition
 from .medicalmodel import RehabilitationCenter
 
 # Create your models here.
 
 class RehabilitationRecord(models.Model):
-    user = models.ForeignKey(ResUser, on_delete=models.CASCADE,related_name='rehabilitation_record')
+    profile = models.ForeignKey(PatientAltProfile, on_delete=models.CASCADE,related_name='rehabilitation_record')
     name = models.ForeignKey(RehabilitationCenter, on_delete=models.PROTECT,related_name='rehabilitation_record', verbose_name=_('Название центра'))
     date = models.DateField(verbose_name=_('Дата'))
     class Meta:
         verbose_name = _('Запись реабилитационного центра')
         verbose_name_plural = _('Записи реабилитационного центра')
-        ordering = ['user']
-        unique_together = ('user', 'date')
+        ordering = ['profile']
+        unique_together = ('profile', 'date')
 
 class VosoritidFirstRecord(models.Model):
     user = models.OneToOneField(ChildAddition,on_delete=models.CASCADE,related_name='first_vosoritid')

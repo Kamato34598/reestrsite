@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import index, user_login, user_logout, user_register, test, TestWizard
+from .views import index, user_login, user_logout, user_register, TestWizard
 
 app_name = 'user'
 urlpatterns = [
