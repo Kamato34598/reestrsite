@@ -3,59 +3,57 @@
 {% extends "login/_base.html" %}
 
 {% block content %}
-  <div class="flex flex-auto flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 mr-3">
-        <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-            <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-                <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
-                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center justify-center" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
-                        <li class="me-2">
-                            <button class="inline-block p-4 border-b-2 rounded-t-lg" id="login-tab" data-tabs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="false">Вход</button>
+    <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+        <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+            <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+                <ul class="flex flex-wrap -mb-px text-sm font-medium text-center justify-center" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+                    <li class="me-2">
+                        <button class="inline-block p-4 border-b-2 rounded-t-lg" id="login-tab" data-tabs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="false">Вход</button>
+                    </li>
+                    <li class="me-2">
+                        <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="register-tab" data-tabs-target="#register" type="button" role="tab" aria-controls="register" aria-selected="false">Регистрация</button>
+                    </li>
+                </ul>
+            </div>
+            <div id="default-tab-content">
+                <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="login" role="tabpanel" aria-labelledby="login-tab">
+                    <div class="text-center">
+                        <a href="{% url 'user:login' %}" >
+                            <button class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                Войти
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="register" role="tabpanel" aria-labelledby="register-tab">
+                    <div class="pl-[32px] mb-5">
+                        <h3 class="text-center text-blue-500 ">Кто вы?</h3>
+                    </div>
+                    <ul class="text-center mx-auto">
+                        <li>
+                            <a href="{% url 'user:reg_patient' %}" >
+                            <button class="text-white w-full bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                Пациент
+                            </button>
+                            </a>
                         </li>
-                        <li class="me-2">
-                            <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="register-tab" data-tabs-target="#register" type="button" role="tab" aria-controls="register" aria-selected="false">Регистрация</button>
+                        <li>
+                            <a href="{% url 'user:reg_child' %}" >
+                            <button class="text-white w-full bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                Родители пациента
+                            </button>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'user:register_doctor' %}" >
+                            <button class="text-white w-full bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                Врач
+                            </button>
+                            </a>
                         </li>
                     </ul>
                 </div>
-                <div id="default-tab-content">
-                    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="login" role="tabpanel" aria-labelledby="login-tab">
-                        <div class="text-center">
-                            <a href="{% url 'user:login' %}" >
-                                <button class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                    Войти
-                                </button>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="register" role="tabpanel" aria-labelledby="register-tab">
-                        <div class="pl-[32px] mb-5">
-                            <h3 class="text-center text-blue-500 ">Кто вы?</h3>
-                        </div>
-                        <ul class="text-center mx-auto">
-                            <li>
-                                <a href="{% url 'user:register' 'patient' %}" >
-                                <button class="text-white w-full bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                    Пациент
-                                </button>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'user:register' 'parents' %}" >
-                                <button class="text-white w-full bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                    Родители пациента
-                                </button>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'user:register' 'doctor' %}" >
-                                <button class="text-white w-full bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                    Врач
-                                </button>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
-  </div>
+    </div>
 {% endblock content %}

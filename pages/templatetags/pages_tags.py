@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 
 menu = [
     {'title': "Главная", 'slug': 'pages:index'},
-    {'title': "Пациенты", 'slug': 'pages:patient_list'},
+    {'title': "Пациенты", 'slug': 'user:patient_search'},
     {'title': "Отчеты", 'slug': 'pages:reports_list'},
     {'title': "Пользователи", 'slug': 'pages:users_list'},
     {'title': "Справочники", 'slug': 'pages:manual'},

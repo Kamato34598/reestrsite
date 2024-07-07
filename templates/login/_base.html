@@ -1,10 +1,8 @@
 <!-- templates/login/_base.html -->
 <!DOCTYPE html>
 <html lang="ru">
-
 {% load compress %}
 {% load static %}
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,22 +17,35 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
-
 <body class="h-full bg-gradient-to-bl from-[#8eaadb] to-[#2f5496] m-0 bg-repeat bg-fixed">
-<div class="flex ">
-    <div class="flex-auto flex-shrink-0 w-64 p-4 hidden xl:block">
-        <div>
-            <div class="self-center flex-shrink-0 max-w-full">
-                    <img src="{% static 'images/logo3.png' %}" class="h-72 max-w-full self-center">
+<div class="flex flex-col lg:flex-row ">
+    <div class="flex-auto lg:w-64 p-16 lg:block hidden">
+        <div class="flex flex-col">
+            <div class="flex flex-row gap-1">
+                <img src="{% static 'images/logo.webp' %}" class="h-20">
+                <div class="flex flex-col items-center">
+                    <p class="text-4xl text-[#ff00f2]">Подари шанс</p>
+                    <p class="text-xl text-[#761989]">Общественный фонд</p>
+                </div>
             </div>
-{#            <p class="text-xl items-center text-[#930071]">Самого главного глазами не увидишь</p>#}
+            <p class="text-xl items-center text-[#930071]">Самого главного глазами не увидишь</p>
         </div>
-        <p class="mt-4 pl-10 text-6xl text-white font-bold flex-wrap">
+        <div class="mt-10 pl-10 pt-10 text-6xl text-white font-bold flex-wrap">
             Реестр пациентов с редкими скелетными дисплазиями (низкорослость)
-        </p>
+        </div>
     </div>
-    {% block content %}
-    {% endblock content %}
+    <div class="flex flex-auto flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 mt-4 h-auto">
+        <div class="lg:hidden flex flex-col items-center mb-6">
+            <img src="/static/images/logo.webp" class="h-20">
+            <div class="flex flex-col items-center">
+                <p class="text-4xl text-[#ff00f2]">Подари шанс</p>
+                <p class="text-xl text-[#761989]">Общественный фонд</p>
+            </div>
+            <p class="text-xl items-center text-[#930071] text-center">Самого главного глазами не увидишь</p>
+        </div>
+        {% block content %}
+        {% endblock content %}
+    </div>
 </div>
 {% block script %}
 {% endblock %}

@@ -4,8 +4,6 @@ from .views import *
 app_name = 'pages'
 urlpatterns = [
     path('', index, name='index'),
-    path('patients/', patient_list, name='patient_list'),
-    path('patients/<int:pk>/', patient_detail, name='patient_detail'),
     path('report_list/', reports_list, name='reports_list'),
     path('users/', users_list, name='users_list'),
     path('users/<int:pk>/', user_detail, name='user_detail'),

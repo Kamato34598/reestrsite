@@ -1,0 +1,89 @@
+<!-- patient_profile.html -->
+
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto my-8 p-4 bg-white shadow-lg rounded-lg">
+        <h1 class="text-2xl font-bold mb-4">Профиль пациента {{ patient.user.last_name }} {{ patient.user.first_name }}:</h1>
+        <p class="mb-2"><strong>Дата рождения:</strong> {{ patient.user.birth_date }}</p>
+        <p class="mb-2"><strong>Пол:</strong> {% if patient.gender == 'male' %} Мужской {% else %} Женский {% endif %}</p>
+        <p class="mb-2"><strong>Область:</strong> {{ patient.user.city.region }}</p>
+        <p class="mb-2"><strong>Город:</strong> {{ patient.user.city.name }}</p>
+        <p class="mb-2"><strong>Медицинская организация:</strong> {{ patient.medical_organization }}</p>
+        <p class="mb-2"><strong>Инвалидность:</strong> {% if patient.disability %} Да {% else %} Нет {% endif %}</p>
+        <p class="mb-2"><strong>Диагноз:</strong> {{ patient.diagnosis }}</p>
+        <p class="mb-2"><strong>Восоритид:</strong> {% if vosoritid %}
+            {% if patient.is_child %}
+                {{ vosoritid_first_record }}
+                <ul class="list-disc list-inside">
+                    {% for record in vosoritid_second_record %}
+                        <li class="cursor-pointer" onclick="toggleElement('vosor_{{ record.pk }}', 'vosor_id{{ record.pk }}')" id="vosor_id{{ record.pk }}">{{ record.date }}
+                            <div class="hidden ml-4 mt-2" id="vosor_{{ record.pk }}">
+                                <p><strong>Рост:</strong> {{ record.height }}</p>
+                                <p><strong>Размер плечевой кости:</strong> {{ record.humerus_size }}</p>
+                                <p><strong>Размер предплечья:</strong> {{ record.forearm_size }}</p>
+                                <p><strong>Размер бедренной кости:</strong> {{ record.femur_size }}</p>
+                                <p><strong>Размер голени:</strong> {{ record.shin_size }}</p>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Период записи: {{ vosoritid_period.start_date }} - {{ vosoritid_period.end_date }}</p>
+            {% endif %}
+        {% else %}
+            Нет
+        {% endif %}
+        </p>
+        <p class="mb-2"><strong>Реабилитация:</strong>
+            {% if rehabilitation_record %}
+                <ul class="list-disc list-inside">
+                    {% for record in rehabilitation_record %}
+                        <li class="cursor-pointer" onclick="toggleElement('rehab_{{ record.pk }}', 'rehab_id{{ record.pk }}')" id="rehab_id{{ record.pk }}">{{ record.name }}
+                            <div class="hidden ml-4 mt-2" id="rehab_{{ record.pk }}">
+                                <p><strong>Город:</strong> {{ record.city }}</p>
+                                <p><strong>Дата:</strong> {{ record.date }}</p>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                Нет
+            {% endif %}
+        </p>
+        {% if patient.is_child %}
+            <h2 class="text-xl font-bold mt-4">Врачи:</h2>
+            <ul class="list-disc list-inside">
+                {% for doctor_check in doctor_checks %}
+                    <li>{{ doctor_check.doctor }} - {{ doctor_check.date }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        function toggleElement(elementId, toggleLinkId) {
+            var element = document.getElementById(elementId);
+            if (element.style.display === "none" || element.style.display === "") {
+                element.style.display = "block";
+                document.getElementById(toggleLinkId).classList.add("active");
+            } else {
+                element.style.display = "none";
+                document.getElementById(toggleLinkId).classList.remove("active");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var hiddenElements = document.querySelectorAll('.hidden');
+            hiddenElements.forEach(function(element) {
+                element.style.display = 'none';
+            });
+        });
+    </script>
+{% endblock %}
+

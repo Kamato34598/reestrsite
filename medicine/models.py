@@ -51,7 +51,7 @@ class DoctorSpeciality(models.Model):
 class DoctorCheck(models.Model):
     profile = models.ForeignKey(ChildAddition, on_delete=models.CASCADE,related_name='doctor_check')
     doctor = models.ForeignKey(DoctorSpeciality, on_delete=models.CASCADE,related_name='doctor_check', verbose_name=_('Специалист'))
-    date = models.DateField(verbose_name=_('Дата приема'))
+    date = models.DateField(verbose_name=_('Дата приема'), null=True, blank=True)
     class Meta:
         verbose_name = _('Запись о приеме врача')
         verbose_name_plural = _('Записи о приеме врача')

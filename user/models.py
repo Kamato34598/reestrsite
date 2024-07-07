@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from locations.models import Cities
 from medicine.medicalmodel import MedicalOrganization, Diagnosis
 from .validators import validate_iin
+import random
 
 
 class Gender(models.TextChoices):
@@ -30,6 +31,8 @@ class CustomUserManager(UserManager):
     def create_superuser(self, username=None, email=None, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('IIN', '999999{0}'.format(random.randint(100000, 999999)))
+        extra_fields.setdefault('birth_date', timezone.now())
         return self._create_user(username, email, password, **extra_fields)
 
 class ResUser(AbstractBaseUser, PermissionsMixin):
@@ -39,6 +42,8 @@ class ResUser(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=255, blank=False, default='', verbose_name=_('Фамилия'))
     city = models.ForeignKey(Cities, on_delete=models.SET_NULL, null=True, verbose_name=_('Город'), related_name='users')
     phone_number = models.CharField(max_length=12, unique=True,verbose_name=_('Номер телефона'))
+    IIN = models.CharField(max_length=12, unique=True, verbose_name=_('ИИН'), validators=[validate_iin])
+    birth_date = models.DateField(verbose_name=_('Дата рождения'))
 
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
@@ -85,10 +90,36 @@ class Patient(ResUser):
         self.is_patient = True
         super().save(*args, **kwargs)
 
+class AdultPatientManager(BaseUserManager):
+    def get_queryset(self, *args, **kwargs):
+        results = super().get_queryset(*args, **kwargs)
+        patient_profile = PatientAltProfile.objects.filter(is_child=False)
+        return results.filter(patient_altprofile__in=patient_profile)
+
+class AdultPatient(ResUser):
+    is_patient = True
+    objects = AdultPatientManager()
+    class Meta:
+        proxy = True
+        verbose_name = _('Пациент')
+        verbose_name_plural = _('Пациенты')
+
+class ChildPatientManager(BaseUserManager):
+    def get_queryset(self, *args, **kwargs):
+        results = super().get_queryset(*args, **kwargs)
+        patient_profile = PatientAltProfile.objects.filter(is_child=True)
+        return results.filter(patient_altprofile__in=patient_profile)
+
+class ChildPatient(ResUser):
+    is_patient = True
+    objects = ChildPatientManager()
+    class Meta:
+        proxy = True
+        verbose_name = _('Пациент-ребенок')
+        verbose_name_plural = _('Пациенты дети')
+
 class PatientAltProfile(models.Model):
     user = models.OneToOneField(ResUser, on_delete=models.CASCADE, related_name='patient_altprofile')
-    IIN = models.CharField(max_length=12, unique=True,verbose_name=_('ИИН'), validators=[validate_iin])
-    birth_date = models.DateField(verbose_name=_('Дата рождения'))
     gender = models.CharField(verbose_name=_('Пол'), max_length=10, choices=Gender.choices)
     height = models.PositiveIntegerField(verbose_name=_('Рост'))
     disability = models.BooleanField(verbose_name=_('Инвалидность'), default=False)
@@ -121,6 +152,10 @@ class ChildProfile(PatientAltProfile):
         proxy = True
         verbose_name = _('Профиль ребенка')
         verbose_name_plural = _('Профили детей')
+
+    def save(self, *args, **kwargs):
+        self.is_child = True  # Устанавливаем значение is_child при сохранении
+        super().save(*args, **kwargs)
 
 class AdultProfileManager(models.Manager):
     def get_queryset(self, *args, **kwargs):
@@ -178,4 +213,5 @@ class Doctor(ResUser):
 
 class DoctorProfile(models.Model):
     user = models.OneToOneField(ResUser, on_delete=models.CASCADE)
+    is_proved = models.BooleanField(default=False, verbose_name=_('Подтвержден'))
     speciality = models.CharField(verbose_name=_('Специализация'), max_length=100, blank=True)

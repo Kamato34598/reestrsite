@@ -1,36 +1,39 @@
 {% extends 'login/_base.html' %}
 {% load crispy_forms_tags %}
-{% block title %}Log-in{% endblock %}
+{% load custom_tags %}
+{% block title %}{{ global_title }}{% endblock %}
 {% block content %}
     <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
         <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                Авторизация
+                {{ global_title }}
             </h1>
-            {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+            <hr>
             <form class="space-y-4 md:space-y-6" method="POST">
                 {% csrf_token %}
-                {{ form|crispy }}
-                <input type="hidden" name="next" value="{{ next }}">
-                <div class="flex items-center justify-between">
-
-                    <a href="{% url 'user:password_reset_request' %}" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Забыли пароль?</a>
-                </div>
+                {{ user_form|crispy }}
+                {{ profile_form|crispy }}
                 <button type="submit"
                         class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-                    Войти
+                    Регистрация
                 </button>
                 <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-                    Нет аккаунта?
-                    <a href="{% url 'user:register' %}" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Регистрация</a>
+                    Уже создали аккаунт?
+                    <a href="{% url 'user:login' %}" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Войти</a>
                 </p>
             </form>
         </div>
     </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $("#id_patient-city").select2();
+        $("#id_adultprofile-medical_organization").select2();
+        $("#id_adultprofile-diagnosis").select2();
+        $("#id_patient_child-city").select2();
+        $("#id_childprofile-medical_organization").select2();
+        $("#id_childprofile-diagnosis").select2();
+        $("#id_patient_child-city").select2();
+    </script>
 {% endblock %}

@@ -1,0 +1,62 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <div class="my-3">
+        <form id="searchForm" method="GET">
+            <div class="grid gap-6 mb-6 sm:grid-cols-3">
+                {{ form|crispy }}
+            </div>
+            <div class="mt-2">
+                <button type="submit"
+                        class="mx-auto rounded-md bg-cyan-600 py-2 px-4 font-semibold text-white shadow-lg transition duration-150 ease-in-out hover:bg-cyan-700 hover:shadow-xl focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:ring-offset-2">
+                    Искать
+                </button>
+            </div>
+        </form>
+    </div>
+    <hr>
+    <div class="mt-4 overflow-x-auto">
+        {% if patients %}
+            <h2>Результаты поиска</h2>
+            <table class=" border-2 border-spacing-0 border-black table-auto text-sm max-w-fit divide-x-2 divide-black">
+            <thead>
+            <tr class="text-wrap divide-x-2 divide-black border-b-2 border-black text-center">
+                <th>Фамилия</th>
+                <th>Дата рождения</th>
+                <th>Пол</th>
+                <th>Личный статус</th>
+                <th>Город</th>
+                <th>Область</th>
+                <th>Медицинская организация</th>
+                <th>Диагноз</th>
+                <th>Инвалидность</th>
+                <th>Восоритид</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for patient in patients %}
+            <tr class=" divide-x-2 divide-black">
+                <td><a href="{% url 'user:patient_profile' patient.pk %}" class="no-underline text-black"> {{ patient.user.last_name }}</a></td>
+                <td>{{ patient.user.birth_date }}</td>
+                <td>{% if patient.gender == 'male' %} Мужской {% elif patient.gender == 'female' %} Женский {% endif %}</td>
+                <td>{% if patient.is_child %} Ребенок {% else %} Взрослый {% endif %}</td>
+                <td>{{ patient.user.city }}</td>
+                <td>{{ patient.user.city.region }}</td>
+                <td>{{ patient.medical_organization }}</td>
+                <td>{{ patient.diagnosis }}</td>
+                <td>{% if patient.disability %} Да {% else %} Нет {% endif %}</td>
+                <td>{% if patient.vosoritid %} Да {% else %} Нет {% endif %}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>Нет результатов для отображения.</p>
+        {% endif %}
+    </div>
+{% endblock %}

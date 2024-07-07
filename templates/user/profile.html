@@ -1,0 +1,27 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+{% load custom_tags %}
+{% block title %}
+{{ title }}
+{% endblock %}
+{% block content %}
+    <h1>Личный кабинет</h1>
+    <div class="max-w-2/3">
+        <form method="post">
+        {% csrf_token %}
+        <h2>Личные данные:</h2>
+        {% if additional_info %}
+            {{ additional_info|crispy }}
+        {% endif %}
+        {{ user_form|crispy }}
+        <h2>Медицинские данные:</h2>
+        {% if profile_form %}
+            {{ profile_form|crispy }}
+        {% endif %}
+        {% if speciality %}
+            <p>Специализация: {{ speciality }}</p>
+        {% endif %}
+        <button type="submit">Сохранить изменения</button>
+        </form>
+    </div>
+{% endblock %}
